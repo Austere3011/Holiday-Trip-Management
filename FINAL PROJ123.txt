@@ -1,0 +1,2454 @@
+#include<iostream>
+#include<windows.h>
+#include<mysql.h>
+#include<iomanip>
+#include<conio.h>
+#include<stdio.h>
+#include<string.h>
+#include<process.h>
+#include<stdlib.h>
+#include <sstream>
+using namespace std;
+class customer
+{
+
+public:
+
+char nationality[25],email[25],name[25],number[20],age[20],gender[20],desp[10000],date[20];
+string destination,food,guide,r_type,f_type,airline;
+int cid,rooms,no_days,pid,veg_count=0,ac=0,desti,n,qstate,co;
+int  number_of_Tickets , Book_ticket ,Ticket_Class;
+int cab_choice , kms , number_of_cabs , hire_cab;
+float Ticket_cost , Ticketcost , cabcost , last_cab_cost ;
+float service_cost, total_bill=0,bill=0,sgst=0,cgst=0,mis=1000;
+float ac_room_cost=0, non_ac_room_cost=0, guide_cost=0, veg=0, non=0, gst=0;
+
+
+MYSQL* conn;
+MYSQL_ROW row;
+MYSQL_RES * res;
+
+
+void cust_register()
+{
+
+        conn = mysql_init(0);
+        conn = mysql_real_connect(conn, "localhost", "root", "", "tourism", 0, NULL, 0);
+
+        cout<<"\n ENTER YOUR NAME : "; cin>>name;
+        cout<<" ENTER YOUR AGE : "; cin>>age;
+        cout<<" ENTER YOUR GENDER : "; cin>>gender;
+        cout<<" ENTER YOUR NATIONALITY : "; cin>>nationality;
+        cout<<" ENTER YOUR EMAIL ID : "; cin>>email;
+        cout<<" ENTER YOUR MOBILE NUMBER : "; cin>>number;
+
+        if(conn)
+        {
+
+            stringstream ss;
+            ss << " INSERT INTO cust (name, age, gender, nation, email, phone_no) values ( '" << name<<"','" << age<<" ','" <<gender<<"' , '" << nationality<<"','" << email<<" ','" <<number<<" ')";
+
+            string query = ss.str ();
+            const char * q = query.c_str();
+            qstate = mysql_query(conn, q);
+
+            if (qstate == 0)
+            {
+
+                cout <<" Record inserted successfully ..."<<endl;
+            }
+            else
+            {
+                cout <<" Error, data not inserted..."<<endl;
+            }
+        }
+
+        else
+        {
+            cout <<" Connection failure"<<endl;
+        }
+        system("CLS");
+        hotel();
+    }
+
+
+void hotel()
+{
+
+
+	conn = mysql_init(0);
+        conn = mysql_real_connect(conn, "localhost", "root", "", "tourism", 0, NULL, 0);
+
+      do
+     {
+      system ("CLS");
+        cout<<"\n\t\t Loading Please Wait.";
+        for(co=0;co<7;co++)
+        {
+          cout<<".";
+          Sleep(600);
+        }
+        system ("CLS");
+      cout<<"\n We are currently offering  services from DELHI to :"<<endl;
+      cout<<"\t\t 1. Leh "<<endl;
+      cout<<"\t\t 2. Kolkata "<<endl;
+      cout<<"\t\t 3. Kochi "<<endl;
+      cout<<"\t\t 4. Hyderabad "<<endl;
+      cout<<"\t\t 5. Bangalore "<<endl;
+      cout<<"\t\t 6. Shimla "<<endl;
+      cout<<"\t\t 7. Dehradun "<<endl;
+      cout<<"\t\t 8. Chennai "<<endl;
+      cout<<"\t\t 9. Mumbai "<<endl;
+      cout<<"\t\t 10. Jaipur "<<endl;
+      cout<<"\n\t ENTER THE DESTINATION CODE : "; cin>>desti;
+}while(desti>10 || desti<1);
+
+
+
+	if (conn && desti<=10 && desti>0 )
+        {
+            qstate = mysql_query(conn, "SELECT * FROM packages");
+
+            if (!qstate)
+            {
+                res = mysql_store_result(conn);
+
+                cout<<"\n There are 2 packages for this destination in total.\n";
+                while(row = mysql_fetch_row(res))
+                {
+                    stringstream geek(row[0]);
+
+                    int i = 0;
+                    geek >> i;
+                    if((i==desti) || (i==(desti+10)))
+                    {
+
+                    	cout<<"\n\t"<<row[0]<<"\t\t"<<row[1]<<"\t\t"<<row[2]<<"\t\t"<<row[3]<<"\n";
+
+
+                    }
+                }
+            }
+
+
+
+            cout<<"\nSelect your desired package id: "; cin>>pid;
+
+            qstate = mysql_query(conn, "SELECT * FROM packages");
+
+            if (!qstate)
+            {
+                res = mysql_store_result(conn);
+
+                while(row = mysql_fetch_row(res))
+                {
+                    stringstream geek(row[0]);
+
+                    int i = 0;
+                    geek >> i;
+                    if(i==pid)
+                    {
+                        destination = row[2];
+                        airline = row[3];
+                        break;
+                    }
+                }
+
+                 system("CLS");
+                cout<<"\nYour Destination is: "<< destination <<"\nYour Airline is: " << airline <<"\n";
+            }
+
+        }
+      cout<<"\n\n ENTER THE FOLLOWING DETAILS FOR HOTEL RESERVATION \n";
+      cout<<"\n ENTER THE NUMBER OF PEOPLE : ";
+      cin>>n;
+      cout<<" DO YOU WANT A GUIDE (YES/NO) : ";
+      cin>>guide;
+      cout<<" ENTER NO OF DAYS OF LODGING : ";
+      cin>>no_days;
+      cout<<" ENTER CHECKIN DATE : ";
+      cin>>date;
+
+      do{
+      cout<<" ENTER NO OF ROOM : ";
+      cin>>rooms;
+      cout<<" ENTER TYPE OF ROOM (AC/NAC) : ";
+      cin>>r_type;
+      cout<<" ENTER THE NUMBER OF AC ROOMS : ";
+      cin>>ac;
+      if(rooms<ac)
+           cout<<"\n INVALID....... \n THE NUMBER OF AC ROOMS REQUESTED ARE GREATER THAN TOTAL NUMBER OF ROOMS \n ENTER VALID NUMBER OF AC ROOMS\n\n";
+    }while(rooms<ac);
+
+      if (guide =="YES"||guide == "yes" || guide =="Yes")
+            guide_cost=1000*no_days;
+
+      if(r_type == "AC" || r_type == "ac" || r_type == "Ac")
+      {
+             ac_room_cost = 2000*ac*no_days;
+             non_ac_room_cost=1500*(n-ac)*no_days;
+      }
+
+
+      else
+      {
+            ac_room_cost = 2000*ac*no_days;
+           non_ac_room_cost=1500*(n-ac)*no_days;
+      }
+
+
+      do{
+      cout<<" DO YOU WANT TO INCLUDE FOOD (YES/NO) : ";
+      cin>>food;
+
+      if (food == "YES"|| food == "yes" || food =="Yes")
+         {
+           cout<<" ENTER THE TYPE OF THE FOOD (VEG/NVEG) : ";
+           cin>>f_type;
+            cout<<" ENTER THE NUMBER OF VEGETARIANS : "; cin >>veg_count;
+            if(f_type == "VEG"|| f_type == "Veg" || f_type == "veg")
+            {
+                veg=1000*veg_count*no_days;
+                 non=1500*(n-veg_count)*no_days;
+            }
+
+            else
+            {
+                veg=1000*veg_count*no_days;
+                non=1500*(n-veg_count)*no_days;
+
+            }
+
+
+          }
+     if(n<veg_count)
+        cout<<"\n INVALID....... \n THE NUMBER OF VEGETARIANS ARE GREATER THAN TOTAL NUMBER OF PEOPLE \n ENTER VALID NUMBER VEGETARIANS.\n\n";
+     }while(n<veg_count);
+
+      Ticket_details();
+
+}
+
+
+
+void Ticket_details() // creating cab_details function
+{        //cout<<"Enter the Airline Name :"<<endl;
+        // cin>> airline;
+
+              if(airline=="Spice Jet")
+                {
+
+
+
+                     system ("CLS");
+                     if(destination == "Leh")
+                      {
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Leh will cost @ Rs 5115 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Leh will cost @ Rs 6500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Leh will cost @ 10000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class :";
+                          cin>>Ticket_Class;
+
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 5115 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\n THANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 6500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs"<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs"<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                              {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                    Ticket_details() ;
+                              }
+                      }
+
+
+                    else if(destination=="Kolkata")
+                    {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Kolkata will cost @ Rs 9150 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Leh will cost @ Rs 11000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Kolkata will cost @ 14000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9150 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 14000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Kochi")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Kochi will cost @ Rs 9150 "<<endl;
+                          cout<<"\t 2. Business  class Ticket from Delhi to Kochi will cost @ Rs 11000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Kochi will cost @ 15000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9150 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 15000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Hyderabad")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Hyderabad will cost @ Rs 8300 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Hyderabad will cost @ Rs 9000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Hyderabad will cost @ 10000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8300 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Bangalore")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Bangalore will cost @ Rs 8159 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Bangalore will cost @ Rs 9500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Bangalore will cost @ 11000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8159 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Shimla")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Shimla will cost @ Rs 9345 "<<endl;
+                          cout<<"\t 2. Business  class Ticket from Delhi to Shimla will cost @ Rs 11000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Shimla will cost @ 13000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9345 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 13000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Dehradun")
+                       {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Dehradun will cost @ Rs 3400 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Dehradun will cost @ Rs 5500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Dehradun will cost @ 7500 " <<endl;
+                          cout<<"\t 4. Exit";
+
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 3400 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm"<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;;
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 5500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Chennai")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Chennai will cost @ Rs 8159 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Chennai will cost @ Rs 9500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Chennai will cost @ 10000 " <<endl;
+                          cout<<"\t 4. exit(0)";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8159 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost  : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                              else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                      else if(destination=="Mumbai")
+                      {
+
+                         cout<<"\n\n\t 1. Economy class Ticket from Delhi to Mumbai will cost @ Rs 7345 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Mumbai will cost @ Rs 8500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Mumbai will cost @ 9000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7345 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost  : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Jaipur")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Jaipur will cost @ Rs 3159 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to jaipur will cost @ Rs 4500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Jaipur will cost @ 6000 " <<endl;
+                          cout<<"\t 4. exit(0)";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 3159 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 4500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm"<<endl;
+                               cout<<" Press 2 to go to the main menu"<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs " <<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 6000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+     cab_details() ;
+     }
+     else if(airline=="Air India")
+     { //AIR INDIA
+                        if(destination == "Leh")
+                      {
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Leh will cost @ Rs 5115 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Leh will cost @ Rs 6400 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Leh will cost @ 7000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class :";
+                          cin>>Ticket_Class;
+
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 5115 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\n THANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 6400 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs"<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs"<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                              {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                    Ticket_details() ;
+                              }
+                      }
+
+
+                    else if(destination=="Kolkata")
+                    {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Kolkata will cost @ Rs 9000 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Leh will cost @ Rs 10500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Kolkata will cost @ 11000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number of Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Kochi")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Kochi will cost @ Rs 9000 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Kochi will cost @ Rs 10500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Kochi will cost @ 11000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Hyderabad")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Hyderabad will cost @ Rs 8115 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Hyderabad will cost @ Rs 9800 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Hyderabad will cost @ 10000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8115 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9800 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Bangalore")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Bangalore will cost @ Rs 7425 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Bangalore will cost @ Rs 8600 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Bangalore will cost @ 9000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7425  * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8600 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                               cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Shimla")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Shimla will cost @ Rs 9145 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Shimla will cost @ Rs 11000  "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Shimla will cost @ 12000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9145 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 11000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 12000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Dehradun")
+                       {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Dehradun will cost @ Rs 3435 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Dehradun will cost @ Rs 5500 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Dehradun will cost @ 6000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 3435 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm"<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;;
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 5500 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 6000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                        Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Chennai")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Chennai will cost @ Rs 7425 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Chennai will cost @ Rs 9000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Chennai will cost @ 10000 " <<endl;
+                          cout<<"\t 4. exit(0)";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7425 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 9000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost  : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                              else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                      else if(destination=="Mumbai")
+                      {
+
+                         cout<<"\n\n\t 1. Economy class Ticket from Delhi to Mumbai will cost @ Rs 7425 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to Mumbai will cost @ Rs 8800 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Mumbai will cost @ 10000 " <<endl;
+                          cout<<"\t 4. Exit";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 7425 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 8800 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 10000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost  : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+
+
+                       else if(destination=="Jaipur")
+                      {
+
+                          cout<<"\n\n\t 1. Economy class Ticket from Delhi to Jaipur will cost @ Rs 3425 "<<endl;
+                          cout<<"\t 2. Business class Ticket from Delhi to jaipur will cost @ Rs 5000 "<<endl;
+                          cout<<"\t 3. First class Ticket from Delhi to Jaipur will cost @ 6000 " <<endl;
+                          cout<<"\t 4. exit(0)";
+
+                          cout<<"\n\n Enter the Choice for class : ";
+                          cin>>Ticket_Class;
+                            if(Ticket_Class==1)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 3425 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Economy class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR ECONOMY CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==2)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 5000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for Buisness class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm"<<endl;
+                               cout<<" Press 2 to go to the main menu"<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs " <<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                    Ticket_details() ;
+                                 }
+                             }
+                             else if(Ticket_Class==3)
+                             {
+                               cout<<"\n Enter The number_of_Tickets you want to book : ";
+                               cin>>number_of_Tickets;
+                               cout<< endl;
+                               Ticketcost = 6000 * number_of_Tickets ;
+                               cout<<"\n The cost of tickets of spice jet for First class will cost : "<<"Rs"<<Ticketcost<<endl ;
+
+                               cout<<" Press 1 to confirm "<<endl;
+                               cout<<" Press 2 to go to the main menu  "<<endl;
+                                cout<<" Enter your option : ";
+                               cin>> Book_ticket;
+                               system ("CLS"); //clearing console
+
+                                if(Book_ticket==1)
+                                 {   Ticket_cost=Ticketcost ;
+                                     cout<<"\nTHANK YOU FOR CHOOSING SPICE JET YOU HAVE SUCCESSFULLY BOOKED THE TICKET FOR BUISNESS CLASS FOR Rs "<<Ticket_cost<<endl ;
+                                     cout<<"\n GOTO THE MAIN MENU TO DOWNLOAD THE RECEIPT "<<endl ; //return ticket option to be provided
+                                 }
+                                else
+                                 {
+                                    cout<<" \n REDIRECTING TO MAIN MENU "<<endl ;
+                                      Ticket_details() ;
+                                 }
+                             }
+
+                             else if(Ticket_Class == 4)
+                                    exit(0);
+
+                             else
+                             {
+                                  cout<<"\n Invalid Input ! Redirecting to Main menu "<<endl ;
+                                  Ticket_details() ;
+                             }
+                      }
+       cab_details() ;
+       }
+       }
+
+
+ void cab_details() // creating cab_details function
+{
+
+          system ("CLS");
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t#             _______DELITE TRAVELS_______             #";
+         cout<<"\n\t\t#    One stop solution for all your trips and tours    #";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#\t 1. Rent a non ac cab @ Rs20/km                #";
+         cout<<"\n\t\t#\t 2. Rent a  ac cab @ Rs30/km                   #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n Enter your cab choice: ";
+         cin>>cab_choice;
+         cout<<"\n\n To calculate the cost for your journey with us enter the following details :"<<endl;
+         cout<<"\n Enter the kms you will travel with cab :";
+         cin>>kms;
+         cout<<"\n Enter the number of cabs you need :";
+         cin>>number_of_cabs;
+
+         if(cab_choice==1) //For non ac cab
+         {
+                 cabcost = 20 * number_of_cabs * kms;
+                 cout<<"\n Your tour with us will cost you Rs "<<cabcost<< " for non ac cab "<<endl;
+                 cout<<"\n Press 1 to confirm "<<endl;
+                 cout<<" Press 2 to return back to the menu ";
+                 cout<<"\n Enter your option : ";
+                 cin>> hire_cab;
+
+                 if (hire_cab==1) //option for non ac confirmed from user
+                         {
+                              last_cab_cost=cabcost;
+                              cout<<"\n You have successfully booked non ac cab for Rs"<<last_cab_cost<<endl;
+                         }
+                else if(hire_cab==2) //option for ac confirmed from user
+                         {
+                              cab_details(); //calling cab function
+                          }
+                else
+                    {
+                         cout<< "\n Invalid input ! Redirecting to previous menu \n please wait !"<<endl;
+                          Sleep (999);
+                          system("CLS"); //clearing console
+                          cab_details(); //calling cab function
+                    }
+          }
+         else if(cab_choice==2) //for ac cab
+           {
+                 cabcost = 30 * number_of_cabs * kms;
+                 cout<<" \n Your tour with us will cost you Rs "<<cabcost<< " for  ac  cab "<<endl;
+                 cout<<"\n Press 1 to confirm "<<endl;
+                 cout<<" Press 2 to return back to the menu ";
+                 cout<<"\n Enter your option : ";
+                 cin>> hire_cab;
+
+                 if (hire_cab==2) //option for non ac confirmed from user
+                        {
+                             cab_details(); //calling cab function
+                        }
+                 else if(hire_cab==1) //option for ac confirmed from user
+                       {
+                           last_cab_cost=cabcost;
+                            cout<<"\n You have successfully booked non ac cab for Rs"<<last_cab_cost<<endl;
+                       }
+                     else
+                        {
+                            cout<< "\n invalid input ! Redirecting to Main menu \n please wait !"<<endl;
+
+                            cab_details(); //calling cab function
+                        }
+              }
+        billing();
+  }
+
+void billing()
+{
+
+         if(no_days < 5  && (no_days >0))
+            service_cost = 2000;
+
+         else if(no_days >= 5 && no_days <10)
+            service_cost = 3000;
+
+         else if(no_days >= 10 && no_days <20)
+            service_cost = 4000;
+
+         else if(no_days >= 20 && no_days <30)
+            service_cost = 5000;
+
+         else if(no_days >= 30 && no_days <50)
+            service_cost = 7000;
+
+         else if(no_days >= 50 && no_days <70)
+            service_cost = 9000;
+
+         else
+            service_cost = 12000;
+
+
+         bill = guide_cost+Ticket_cost+last_cab_cost+ac_room_cost+non_ac_room_cost+veg+non+service_cost+mis;
+
+         sgst= (0.09*bill);
+         cgst=(0.09*bill);
+	       gst = sgst+cgst;
+
+         total_bill=bill+sgst+cgst;
+         system ("CLS");
+
+
+	 conn = mysql_init(0);
+        conn = mysql_real_connect(conn, "localhost", "root", "", "tourism", 0, NULL, 0);
+
+	stringstream ss;
+            ss << " INSERT INTO billing (cust_name, no_of_days, guide_cost, ticket_cost, cab_cost, room_cost_ac, room_cost_non_ac, food_cost_veg, food_cost_non_veg, misc, service_cost,sgst, cgst, total_gst, grand_total_bill) values ( '" << name<<"','" << no_days<<" ','" <<guide_cost<<"' , '" << Ticket_cost<<"','" << last_cab_cost<<" ','" <<ac_room_cost<<" ', '" << non_ac_room_cost<<" ','" 			<<veg<<"' , '" << non<<"','" << mis<<" ','" <<service_cost<<" ' , '" << sgst<<" ','" <<cgst<<" ' , '" <<gst<<" ', '" <<total_bill<<" ' )";
+
+            string query = ss.str ();
+            const char * q = query.c_str();
+            qstate = mysql_query(conn, q);
+
+	/*if (qstate == 0)
+            {
+
+                cout <<" Record inserted successfully ...\n"<<endl;
+            }
+            else
+            {
+                cout <<" Error, data not inserted..."<<endl;
+            }
+            */
+
+	qstate = mysql_query(conn, "SELECT * FROM billing WHERE bill_id = ( SELECT MAX(bill_id) FROM billing )");
+
+            if (!qstate)
+            {
+                res = mysql_store_result(conn);
+
+                row = mysql_fetch_row(res);
+
+
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t#             _______DELITE TRAVELS_______             #";
+         cout<<"\n\t\t#    One stop solution for all your trips and tours    #";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#                       INVOICE                        #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#    Billing ID ............................. "<<row[0]<<"        #";
+         cout<<"\n\t\t#    Customer Name .......................... "<<row[1]<<"    #";
+         cout<<"\n\t\t#    Number of days ......................... "<<row[2]<<" days  #";
+         cout<<"\n\t\t#    Guide .................................. "<<row[3]<<"    #";
+         cout<<"\n\t\t#    Ticket ................................. "<<row[4]<<"    #";
+         cout<<"\n\t\t#    Cab .................................... "<<row[5]<<"    #";
+         cout<<"\n\t\t#    AC Room ................................ "<<row[6]<<"    #";
+         cout<<"\n\t\t#    NON AC Room ............................ "<<row[7]<<"   #";
+         cout<<"\n\t\t#    Food (Veg) ............................. "<<row[8]<<"    #";
+         cout<<"\n\t\t#    Food (Non-Veg) ......................... "<<row[9]<<"   #";
+         cout<<"\n\t\t#    Miscellaneous Cost...................... "<<row[10]<<"     #";
+         cout<<"\n\t\t#    Service Cost ........................... "<<row[11]<<"     #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#  SGST ................................... "<<row[12]<<"      #";
+         cout<<"\n\t\t#  CGST ................................... "<<row[13]<<"      #";
+         cout<<"\n\t\t#  Total GST .............................. "<<row[14]<<"      #";
+         cout<<"\n\t\t########################################################";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t#   Grand Total .................... "<<row[15]<<"INR         #";
+         cout<<"\n\t\t#                                                      #";
+         cout<<"\n\t\t########################################################";
+         /// sql for b
+
+}
+
+}
+
+};
+
+
+int main()
+{
+  customer obj;
+  int an,co;
+  char ans;
+  do
+  {
+  system ("CLS");
+    cout<<"\n\t\t########################################################";
+  cout<<"\n\t\t#                  HARMAN INTERNSHIP                   #";
+  cout<<"\n\t\t#             PROJECT PRESENTED TO IPRIMED             #";
+  cout<<"\n\t\t########################################################";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#             _______DELITE TRAVELS_______             #";
+  cout<<"\n\t\t#    One stop solution for all your trips and tours    #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t########################################################";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#*********************** MENU *************************#";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#\t1. CUSTOMER REGISTRATION                       #";
+  cout<<"\n\t\t#\t2. EXIT                                        #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t#                                                      #";
+  cout<<"\n\t\t########################################################";
+  cout<<"\n\t\t Loading Please Wait.";
+  for(co=0;co<7;co++)
+  {
+      cout<<".";
+      Sleep(600);
+  }
+  cout<<endl;
+  cout<<"\n\t\t ENTER YOUR OPTION : ";
+  cin>>an;
+  system("CLS");
+
+  switch (an)
+  {
+  case 1: obj.cust_register();
+  break;
+  case 2 : exit(0);
+  break;
+  default:  cout<<"\n\t\t     INVALID INPUT.............. PLEASE TRY AGAIN";
+  }
+
+  cout<<"\n\n\t\tDO YOU WANT TO CONTINUE(Y/N) ";
+  cin>>ans;
+  }while(ans=='Y'||ans=='y');
+     cout<<"\n\t\t Loading Please Wait.";
+  for(co=0;co<7;co++)
+  {
+      cout<<".";
+      Sleep(600);
+  }
+  system ("CLS");
+  cout<<"\n\n\n\n\n\n\n\n\n******************************************************************************           ";
+  cout<<"\n\n\n\n\t\t\t\t ....THANK YOU....";
+  cout<<"\n\n\t\t\t  ... YOUR TOUR PACKAGE IS CONFIRMED...";
+  cout<<"\n\n\t\t\t  ... HOPE YOU WILL ENJOY YOUR TOUR...";
+  cout<<"\n\n\t\t\t       .. PLEASE VISIT AGAIN..               \n\n\n\n\n ";
+  cout<<"******************************************************************************           ";
+getch(); getch();
+  return 0;
+}
+
